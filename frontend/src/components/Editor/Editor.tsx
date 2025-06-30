@@ -24,7 +24,7 @@ export default function Editor() {
   useEffect(() => {
     if (!hasUserTyped) return;
 
-    const note = { id: 'current-note', title: 'Untitled', content };
+    const note = { id: '4ef5b209-f118-4e36-a6ca-66dfef4e304b', title: 'Untitled', content };
     const saveNoteAsync = async () => {
       try {
         await updateNote(note);

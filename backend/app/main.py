@@ -1,19 +1,19 @@
-from typing import Union
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, WebSocket
 from fastapi.responses import HTMLResponse
+from .routers import notes
+#from .websocket import websocket_router
 
-app = FastAPI()
+app = FastAPI(title="Real-Time Notes Pad API", version="1.0.0")
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root():
-    return """
-    <html>
-        <head>
-            <title>Real-Time Notes Pad</title>
-        </head>
-        <body>
-            <h1>Welcome to the Real-Time Notes Pad JoOoOon!</h1>
-            <p>This is a placeholder for the real-time notes editor.</p>
-        </body>
-    </html>
-    """
+# Include routers
+app.include_router(notes.router, prefix="/api/v1")
+#app.include_router(websocket_router, prefix="/ws")
+
+"""
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
+"""

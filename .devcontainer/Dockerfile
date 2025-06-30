@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/devcontainers/python:3.11
 
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get update && apt-get install -y nodejs && \
     apt-get install -y \
     curl \

@@ -67,9 +67,15 @@ npm run dev
 
 Your editor will be running at <http://localhost:5173>
 
-### 3. (Optional) Start the backend
+### 3. Start the backend
 
-_Backend not required in the MVP version. localStorage is used instead._
+```bash
+cd backend
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+fastapi dev main.py
+```
 
 ---
 

@@ -18,7 +18,17 @@ export default function Editor() {
   useEffect(() => {
     if (!isLoaded) return;
     const note = { id: 'current-note', title: 'Untitled', content };
-    saveNote(note);
+
+    /* 
+     * Debounce saving to avoid too many writes
+     * This will save the note after 500ms of inactivity
+     * when the user stops typing
+     */
+    const timeout = setTimeout(() => {
+      saveNote(note);
+    }, 500); // wait 500ms after user stops typing
+
+    return () => clearTimeout(timeout);
   }, [content, isLoaded]);
 
   return (

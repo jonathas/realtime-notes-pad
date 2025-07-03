@@ -5,16 +5,19 @@ import './Editor.css'
 interface EditorProps {
   onNoteChange?: (note: Note) => void;
   onSave?: (date: Date) => void;
+  onTypingChange?: (isTyping: boolean) => void;
 }
 
 export default function Editor({
   onNoteChange = () => {},
-  onSave = () => {}
+  onSave = () => {},
+  onTypingChange = () => {}
 }: Readonly<EditorProps> = {
 }) {
   const [note, setNote] = useState<Note>({} as Note);
   const [content, setContent] = useState('');
   const [hasUserTyped, setHasUserTyped] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     const loadInitialNote = async () => {
@@ -35,6 +38,17 @@ export default function Editor({
 
     loadInitialNote();
   }, [onNoteChange, onSave]);
+
+  useEffect(() => {
+    if (!isTyping) return;
+
+    const typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      onTypingChange(false);
+    }, 1000); // Stop showing "typing" after 1 second of inactivity
+
+    return () => clearTimeout(typingTimeout);
+  }, [isTyping, onTypingChange]);
 
   useEffect(() => {
     if (!hasUserTyped) return;
@@ -63,6 +77,11 @@ export default function Editor({
     setContent(e.target.value);
     setHasUserTyped(true);
     onNoteChange({ ...note, content: e.target.value });
+
+    if (!isTyping) {
+      setIsTyping(true);
+      onTypingChange(true);
+    }
   };
 
   return (

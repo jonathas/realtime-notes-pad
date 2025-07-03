@@ -6,6 +6,7 @@ import type { Note } from './services/storage';
 export default function App() {
   const [note, setNote] = useState<Note>();
   const [lastSaved, setLastSaved] = useState<Date>();
+  const [isUserTyping, setIsUserTyping] = useState(false);
 
   return (
     <div className="h-screen flex flex-col">
@@ -13,6 +14,7 @@ export default function App() {
         <Editor 
           onNoteChange={setNote}
           onSave={setLastSaved}
+          onTypingChange={setIsUserTyping}
         />
       </div>
       
@@ -20,6 +22,8 @@ export default function App() {
         note={note} 
         lastSaved={lastSaved}
         isConnected={true}
+        isUserTyping={isUserTyping}
+        userName="Jonathas"
       />
     </div>
   );

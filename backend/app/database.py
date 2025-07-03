@@ -4,7 +4,7 @@ import os
 # PostgreSQL URL format: postgresql://user:password@host:port/database
 DATABASE_URL = os.getenv(
     "DATABASE_URL", 
-    "postgresql://notes:notes@localhost:5432/notes"
+    "postgresql+psycopg://notes:notes@localhost:5432/notes"
 )
 
 engine = create_engine(DATABASE_URL, echo=True)

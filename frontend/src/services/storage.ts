@@ -6,10 +6,8 @@ export interface Note {
   content: string;
 }
 
-const STORAGE_KEY = "4ef5b209-f118-4e36-a6ca-66dfef4e304b";
-
-export const loadNote = (): Promise<Note> => {
-  return apiClient.get<Note>(`/notes/${STORAGE_KEY}`);
+export const loadNote = (id: string): Promise<Note> => {
+  return apiClient.get<Note>(`/notes/${id}`);
 };
 
 export const loadAllNotes = (): Promise<Note[]> => {
@@ -24,6 +22,6 @@ export const updateNote = (note: Note): Promise<Note> => {
   return apiClient.put<Note>(`/notes/${note.id}`, note);
 }
 
-export const deleteNote = async (): Promise<void> => {
-  await apiClient.delete<void>(`/notes/${STORAGE_KEY}`);
+export const deleteNote = async (id: string): Promise<void> => {
+  await apiClient.delete<void>(`/notes/${id}`);
 }

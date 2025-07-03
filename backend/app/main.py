@@ -10,21 +10,47 @@ import os
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables on startup
-    create_db_and_tables()
-    
-    # Seed initial data
-    await seed_initial_data()
+    try:
+        # Create tables on startup
+        print("Creating database tables...")
+        create_db_and_tables()
+        print("Database tables created successfully")
+        
+        # Seed initial data
+        print("Seeding initial data...")
+        seed_initial_data()
+        print("Seeding completed")
+        
+    except Exception as e:
+        print(f"Startup error: {e}")
+        import traceback
+        traceback.print_exc()
+        
     yield
 
-async def seed_initial_data():
-    existing_notes = await note_service.get_all_notes()
-    if len(existing_notes) == 0:
-        initial_note = NoteCreate(
-            title="Welcome to Real-Time Notes Pad",
-            content="Start typing your notes here..."
-        )
-        await note_service.create_note(initial_note)
+def seed_initial_data():
+    try:
+        print("Checking existing notes...")
+        existing_notes = note_service.get_all_notes()
+        print(f"Found {len(existing_notes)} existing notes")
+        
+        if len(existing_notes) == 0:
+            print("Creating initial note...")
+            initial_note = NoteCreate(
+                title="Welcome to Real-Time Notes Pad",
+                content="Start typing your notes here..."
+            )
+            created_note = note_service.create_note(initial_note)
+            print(f"Created initial note with ID: {created_note.id}")
+        else:
+            print("Database already has notes, skipping seed")
+            for note in existing_notes:
+                print(f"Existing note: {note.id} - {note.title}")
+                
+    except Exception as e:
+        print(f"Error during seeding: {e}")
+        import traceback
+        traceback.print_exc()
 
 app = FastAPI(
     title="Real-Time Notes Pad API", 

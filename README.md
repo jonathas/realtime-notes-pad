@@ -18,7 +18,7 @@ This project is intended to be cross-platform:
 - [x] Support for multiple notes
 - [x] Server selector for remote note sync
 - [ ] Real-time collaboration via WebSocket
-- [ ] Backend API for CRUD operations
+- [x] Backend API for CRUD operations
 - [ ] Electron desktop support
 - [ ] Optional offline mode
 
@@ -31,12 +31,12 @@ This project is intended to be cross-platform:
 - Vite + React + TypeScript
 - Tailwind CSS
 - localStorage for initial persistence
-- Planned: socket.io-client for live sync
+- socket.io-client for live sync
 
-### Backend (planned)
+### Backend
 
 - FastAPI (Python)
-- SQLite (for dev) / PostgreSQL (for prod)
+- PostgreSQL
 - REST API + WebSocket (/ws/notes/{id})
 
 ### Deployment (planned)

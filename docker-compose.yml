@@ -22,7 +22,7 @@ services:
       - ./backend:/code
     environment:
       - CORS_ORIGINS=http://localhost:5173
-      - DATABASE_URL=postgresql://notes:notes@db:5432/notes
+      - DATABASE_URL=postgresql+psycopg://notes:notes@db:5432/notes
       - WEBSOCKET_URL=ws://localhost:8000/ws
     command: fastapi dev app/main.py --host 0.0.0.0 --port 8000
     working_dir: /code

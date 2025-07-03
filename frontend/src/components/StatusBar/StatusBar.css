@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+.status-bar {
+  @apply flex items-center justify-between bg-gray-800 text-white px-4 py-1 text-sm border-t border-gray-600;
+  height: 24px;
+  font-family: 'SF Mono', Monaco, 'Inconsolata', 'Roboto Mono', Consolas, 'Courier New', monospace;
+}
+
+.status-item {
+  @apply flex items-center space-x-2;
+}
+
+.status-item:not(:last-child) {
+  @apply border-r border-gray-600 pr-4 mr-4;
+}
+
+/* VS Code-like hover effects */
+.status-item:hover {
+  @apply bg-gray-700 cursor-pointer;
+}

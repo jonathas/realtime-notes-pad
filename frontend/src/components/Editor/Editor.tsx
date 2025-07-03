@@ -56,7 +56,7 @@ export default function Editor() {
     <textarea
       value={content}
       onChange={handleChange}
-      className="w-screen h-screen p-4 text-lg font-mono focus:outline-none"
+      className="w-screen h-full p-4 text-lg font-mono focus:outline-none resize-none"
       placeholder="Start typing your collaborative note..."
       autoFocus
     />

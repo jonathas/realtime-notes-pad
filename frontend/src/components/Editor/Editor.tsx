@@ -2,7 +2,16 @@ import { useEffect, useState } from 'react'
 import { loadAllNotes, updateNote, type Note } from '../../services/storage'; 
 import './Editor.css'
 
-export default function Editor() {
+interface EditorProps {
+  onNoteChange?: (note: Note) => void;
+  onSave?: (date: Date) => void;
+}
+
+export default function Editor({
+  onNoteChange = () => {},
+  onSave = () => {}
+}: Readonly<EditorProps> = {
+}) {
   const [note, setNote] = useState<Note>({} as Note);
   const [content, setContent] = useState('');
   const [hasUserTyped, setHasUserTyped] = useState(false);
@@ -16,6 +25,8 @@ export default function Editor() {
           const note = notes[0];
           setNote(note);
           setContent(note.content || '');
+          onNoteChange(note);
+          onSave(new Date(note.updated_at));
         }
       } catch (error) {
         console.error('Failed to load note:', error);
@@ -23,13 +34,14 @@ export default function Editor() {
     };
 
     loadInitialNote();
-  }, []);
+  }, [onNoteChange, onSave]);
 
   useEffect(() => {
     if (!hasUserTyped) return;
     const saveNoteAsync = async () => {
       try {
         await updateNote({ ...note, content });
+        onSave(new Date());
       } catch (error) {
         console.error('Failed to save note:', error);
       }
@@ -45,11 +57,12 @@ export default function Editor() {
     }, 500); // wait 500ms after user stops typing
 
     return () => clearTimeout(timeout);
-  }, [content, note, hasUserTyped]);
+  }, [content, note, hasUserTyped, onSave]);
 
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
     setHasUserTyped(true);
+    onNoteChange({ ...note, content: e.target.value });
   };
 
   return (

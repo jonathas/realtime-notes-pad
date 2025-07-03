@@ -1,3 +1,5 @@
 fastapi[standard]==0.115.14
-pydantic==2.9.0
-websockets==11.0.3
+pydantic==2.11.7
+websockets==15.0.1
+sqlmodel==0.0.24
+psycopg[binary]==3.2.9

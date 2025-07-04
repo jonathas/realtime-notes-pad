@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { updateNote, type Note } from '../../services/storage'; 
 import './Editor.css'
+import { getCurrentTimestamp } from '../../utils/dateUtils';
 
 interface EditorProps {
   note?: Note;
@@ -35,7 +36,7 @@ export default function Editor({
     const saveNoteAsync = async () => {
       try {
         await updateNote({ ...note, content });
-        onSave(new Date());
+        onSave(getCurrentTimestamp());
       } catch (error) {
         console.error('Failed to save note:', error);
       }

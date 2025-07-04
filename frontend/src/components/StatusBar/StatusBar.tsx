@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import dayjs from 'dayjs';
 import './StatusBar.css';
+import { formatRelativeTime, formatTime } from '../../utils/dateUtils';
 
 interface StatusBarProps {
   note?: {
@@ -22,22 +24,16 @@ export default function StatusBar({
   isUserTyping = false,
   userName = '',
 }: Readonly<StatusBarProps>) {
-   const [currentTime, setCurrentTime] = useState(new Date());
-
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+   const [currentTime, setCurrentTime] = useState(dayjs());
 
   const formatLastSaved = (date?: Date) => {
-    if (!date) return 'Never';
-    const now = new Date();
-    const diff = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diff < 60) return 'Just now';
-    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-    return date.toLocaleTimeString();
+    return date ? formatRelativeTime(date) : 'Never';
   };
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(dayjs()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const getWordCount = () => {
     if (!wordCount && note?.content) {
@@ -72,7 +68,7 @@ export default function StatusBar({
       </span>
       
       <span className="status-item">
-        {currentTime.toLocaleTimeString()}
+        {formatTime(currentTime.toDate())}
       </span>
       </div>
     </div>

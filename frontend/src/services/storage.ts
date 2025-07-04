@@ -4,8 +4,8 @@ export interface Note {
   id: string;
   title: string;
   content?: string;
-  updated_at: Date;
-  created_at: Date;
+  updated_at: string;
+  created_at: string;
 }
 
 export type CreateNoteInput = Omit<Note, 'id' | 'updated_at' | 'created_at'>;

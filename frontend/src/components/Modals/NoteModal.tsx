@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import { createNote, loadAllNotes, type Note } from '../../services/storage';
+import { formatNoteDate, formatRelativeTime } from '../../utils/dateUtils';
 
 interface NoteModalProps {
   currentNoteId?: string;
@@ -10,7 +11,7 @@ interface NoteModalProps {
   allowClose?: boolean;
 }
 
-export default function NoteModal({ 
+export default function NoteModal({
   currentNoteId, 
   serverUrl, 
   onSelect, 
@@ -153,9 +154,14 @@ export default function NoteModal({
                 }`}
               >
                 <h3 className="font-medium">{note.title || 'Untitled'}</h3>
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(note.updated_at).toLocaleDateString()}
-                </p>
+                <div className="flex justify-between items-center">
+                  <p className="text-xs text-gray-400">
+                    {formatNoteDate(note.updated_at)},
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {formatRelativeTime(note.updated_at)}
+                  </p>
+                </div>
               </button>
             ))}
           </div>

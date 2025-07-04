@@ -2,17 +2,18 @@ from typing import List, Optional
 from sqlmodel import Session, select
 from ..models.note import Note, NoteCreate, NoteUpdate, NoteListItem
 from ..database import engine
-from datetime import datetime
+from datetime import datetime, timezone
 
 class NoteService:
     
     def create_note(self, note_data: NoteCreate) -> Note:
         with Session(engine) as session:
+            utc_now = datetime.now(timezone.utc)
             note = Note(
                 title=note_data.title,
                 content=note_data.content,
-                created_at=datetime.now(),
-                updated_at=datetime.now()
+                created_at=utc_now,
+                updated_at=utc_now
             )
             session.add(note)
             session.commit()
@@ -23,7 +24,7 @@ class NoteService:
         with Session(engine) as session:
             return session.get(Note, note_id)
     
-    def get_all_notes(self) -> List[NoteListItem]:
+    def get_all_notes(self) -> List[Note]:
         with Session(engine) as session:
             statement = select(Note.id, Note.title, Note.created_at, Note.updated_at)
             results = session.exec(statement).all()
@@ -48,7 +49,7 @@ class NoteService:
             for field, value in update_data.items():
                 setattr(note, field, value)
             
-            note.updated_at = datetime.now()
+            note.updated_at = datetime.now(timezone.utc)
             session.add(note)
             session.commit()
             session.refresh(note)

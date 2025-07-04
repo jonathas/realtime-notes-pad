@@ -3,6 +3,7 @@ import Editor from './components/Editor/Editor';
 import StatusBar from './components/StatusBar/StatusBar';
 import { loadNote, type Note } from './services/storage';
 import Toolbar from './components/Toolbar/Toolbar';
+import { convertUTCToLocal } from './utils/dateUtils';
 
 export default function App() {
   const [note, setNote] = useState<Note>();
@@ -36,7 +37,7 @@ export default function App() {
       const fullNote = await loadNote(noteId);
       if (fullNote) {
         setNote(fullNote);
-        setLastSaved(new Date(fullNote.updated_at));
+        setLastSaved(convertUTCToLocal(fullNote.updated_at));
       }
     } catch (error) {
       console.error('Failed to load selected note:', error);
@@ -64,15 +65,13 @@ export default function App() {
         const fullNote = await loadNote(selectedNote.id);
         if (fullNote) {
           setNote(fullNote);
-          setLastSaved(new Date(fullNote.updated_at));
+          setLastSaved(convertUTCToLocal(fullNote.updated_at));
         }
       } catch (error) {
         console.error('Failed to load full note:', error);
-        // Fallback to the partial note
         setNote(selectedNote);
       }
     } else {
-      // Note already has content (e.g., newly created)
       setNote(selectedNote);
     }
     

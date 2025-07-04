@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from typing import List
-from ..models.note import Note, NoteCreate, NoteUpdate
+from ..models.note import Note, NoteCreate, NoteUpdate, NoteListItem
 from ..services.note_service import note_service
 
 router = APIRouter(prefix="/notes", tags=["notes"])
@@ -9,7 +9,7 @@ router = APIRouter(prefix="/notes", tags=["notes"])
 def create_note(note: NoteCreate):
     return note_service.create_note(note)
 
-@router.get("", response_model=List[Note])
+@router.get("", response_model=List[NoteListItem])
 def get_notes():
     return note_service.get_all_notes()
 

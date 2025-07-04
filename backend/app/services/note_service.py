@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlmodel import Session, select
-from ..models.note import Note, NoteCreate, NoteUpdate
+from ..models.note import Note, NoteCreate, NoteUpdate, NoteListItem
 from ..database import engine
 from datetime import datetime
 
@@ -23,10 +23,20 @@ class NoteService:
         with Session(engine) as session:
             return session.get(Note, note_id)
     
-    def get_all_notes(self) -> List[Note]:
+    def get_all_notes(self) -> List[NoteListItem]:
         with Session(engine) as session:
-            statement = select(Note)
-            return session.exec(statement).all()
+            statement = select(Note.id, Note.title, Note.created_at, Note.updated_at)
+            results = session.exec(statement).all()
+            
+            return [
+                NoteListItem(
+                    id=row.id,
+                    title=row.title,
+                    created_at=row.created_at,
+                    updated_at=row.updated_at
+                )
+                for row in results
+            ]
     
     def update_note(self, note_id: str, note_update: NoteUpdate) -> Optional[Note]:
         with Session(engine) as session:

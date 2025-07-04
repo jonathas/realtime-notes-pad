@@ -23,3 +23,9 @@ class NoteRead(NoteBase):
     id: str
     created_at: datetime
     updated_at: datetime
+
+class NoteListItem(SQLModel):
+    id: str
+    title: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime

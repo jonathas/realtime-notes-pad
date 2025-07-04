@@ -1,8 +1,10 @@
-const API_URL = `${import.meta.env.VITE_API_URL}/api/v1`;
+const getBaseURL = () => {
+  return `${localStorage.getItem('serverUrl') || 'import.meta.env.VITE_API_URL'}/api/v1`;
+};
 
 export const apiClient = {
   async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`);
+    const response = await fetch(`${getBaseURL()}${endpoint}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -10,7 +12,7 @@ export const apiClient = {
   },
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -24,7 +26,7 @@ export const apiClient = {
   },
 
   async put<T>(endpoint: string, data: unknown): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -38,7 +40,7 @@ export const apiClient = {
   },
 
   async delete<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${API_URL}${endpoint}`, {
+    const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'DELETE',
     });
     if (!response.ok) {

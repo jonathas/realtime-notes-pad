@@ -3,10 +3,14 @@ import { apiClient } from "./api-client";
 export interface Note {
   id: string;
   title: string;
-  content: string;
+  content?: string;
   updated_at: Date;
   created_at: Date;
 }
+
+export type CreateNoteInput = Omit<Note, 'id' | 'updated_at' | 'created_at'>;
+
+export type UpdateNoteInput = Omit<Note, 'created_at' | 'updated_at'>;
 
 export const loadNote = (id: string): Promise<Note> => {
   return apiClient.get<Note>(`/notes/${id}`);
@@ -16,11 +20,11 @@ export const loadAllNotes = (): Promise<Note[]> => {
   return apiClient.get<Note[]>(`/notes`);
 };
 
-export const createNote = (note: Note): Promise<Note> => {
+export const createNote = (note: CreateNoteInput): Promise<Note> => {
   return apiClient.post<Note>(`/notes`, note);
 }
 
-export const updateNote = (note: Note): Promise<Note> => {
+export const updateNote = (note: UpdateNoteInput): Promise<Note> => {
   return apiClient.put<Note>(`/notes/${note.id}`, note);
 }
 

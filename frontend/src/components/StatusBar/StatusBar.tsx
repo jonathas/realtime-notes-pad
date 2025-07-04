@@ -5,7 +5,7 @@ interface StatusBarProps {
   note?: {
     id: string;
     title: string;
-    content: string;
+    content?: string;
   };
   isConnected?: boolean;
   lastSaved?: Date;
@@ -63,10 +63,6 @@ export default function StatusBar({
     </div>
 
     <div className="flex items-center space-x-4">
-      <span className="status-item">
-        📝 {note?.title || 'Untitled'}
-      </span>
-      
       <span className="status-item">
         💾 {formatLastSaved(lastSaved)}
       </span>

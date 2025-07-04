@@ -111,7 +111,6 @@ export default function App() {
       <div className="flex-1 relative">
         <Editor 
           note={note}
-          onNoteChange={setNote}
           onSave={setLastSaved}
           onTypingChange={setIsUserTyping}
           serverUrl={serverUrl}

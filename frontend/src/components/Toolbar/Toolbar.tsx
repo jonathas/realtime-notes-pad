@@ -60,12 +60,12 @@ export default function Toolbar({
   return (
     <>
       <div className="toolbar">
-        <div className="flex items-center space-x-4">
-          <h1 className="text-lg font-semibold">
+        <div className="flex items-center space-x-3">
+          <h1 className="text-sm font-normal text-gray-100">
             {getDisplayTitle()}
           </h1>
           {!serverUrl && (
-            <span className="text-sm text-orange-600 bg-orange-100 px-2 py-1 rounded">
+            <span className="setup-indicator">
               Setup Required
             </span>
           )}
@@ -74,7 +74,7 @@ export default function Toolbar({
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowServerModal(true)}
-            className={`toolbar-button ${!serverUrl ? 'bg-orange-100 border-orange-300' : ''}`}
+            className={`toolbar-button ${!serverUrl ? 'bg-orange-800 border-orange-600 text-orange-200' : ''}`}
             title="Select Server"
           >
             🌐 Server

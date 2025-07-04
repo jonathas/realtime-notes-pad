@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { loadAllNotes, updateNote, type Note } from '../../services/storage'; 
+import { updateNote, type Note } from '../../services/storage'; 
 import './Editor.css'
 
 interface EditorProps {
@@ -12,7 +12,6 @@ interface EditorProps {
 
 export default function Editor({
   note,
-  onNoteChange = () => {},
   onSave = () => {},
   onTypingChange = () => {},
   serverUrl
@@ -49,13 +48,20 @@ export default function Editor({
     return () => clearTimeout(timeout);
   }, [content, note, hasUserTyped, onSave, serverUrl]);
 
+  useEffect(() => {
+    if (!isTyping) return;
+
+    const typingTimeout = setTimeout(() => {
+      setIsTyping(false);
+      onTypingChange(false);
+    }, 1000); // Stop showing "typing" after 1 second of inactivity
+
+    return () => clearTimeout(typingTimeout);
+  }, [isTyping, onTypingChange]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
     setHasUserTyped(true);
-    
-    if (note) {
-      onNoteChange({ ...note, content: e.target.value });
-    }
 
     if (!isTyping) {
       setIsTyping(true);

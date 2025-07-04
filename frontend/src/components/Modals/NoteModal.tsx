@@ -103,7 +103,7 @@ export default function NoteModal({
               onChange={(e) => setNewNoteTitle(e.target.value)}
               onKeyDown={handleTitleKeyPress}
               placeholder="Enter note title..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3 text-gray-900"
               autoFocus
             />
             <div className="flex justify-end space-x-2">

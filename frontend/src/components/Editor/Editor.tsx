@@ -19,6 +19,7 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
 
   // WebSocket connection
   const {
+    isConnected,
     sendContentChange,
     sendTypingIndicator,
   } = useWebSocket({
@@ -47,10 +48,16 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
     },
     onConnectionChange: onConnectionChange,
     onContentSaved: () => {
-      console.log('🎉 onContentSaved called - updating lastSaved');
       onSave?.(new Date());
     }
   });
+
+  // Pass connection status to parent
+  useEffect(() => {
+    if (onConnectionChange) {
+      onConnectionChange(isConnected);
+    }
+  }, [isConnected, onConnectionChange]);
 
   // Load note content when note changes
   useEffect(() => {
@@ -62,6 +69,12 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
   // Handle content changes
   const handleContentChange = (newContent: string) => {
     if (isUpdatingFromRemote.current) return;
+
+    // Prevent editing if not connected
+    if (!isConnected) {
+      console.warn('Cannot edit - WebSocket not connected');
+      return;
+    }
 
     setContent(newContent);
     
@@ -115,6 +128,15 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
 
   return (
     <div className="h-full flex flex-col">
+      {/* Connection warning - show if disconnected */}
+      {!isConnected && (
+        <div className="px-4 py-2 bg-red-50 border-b text-sm">
+          <span className="text-red-600 font-medium">
+            ⚠️ Connection lost - editing disabled until reconnected
+          </span>
+        </div>
+      )}
+
       {/* Typing indicators - only show if others are typing */}
       {otherUsersTyping.length > 0 && (
         <div className="px-4 py-2 bg-blue-50 border-b text-sm">
@@ -130,10 +152,22 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
           ref={textareaRef}
           value={content}
           onChange={(e) => handleContentChange(e.target.value)}
+          disabled={!isConnected}
           className="w-full h-full p-4 resize-none border-none outline-none font-mono text-sm leading-relaxed"
           placeholder="Start typing your note..."
           spellCheck={false}
         />
+
+        {/* Overlay when disconnected */}
+        {!isConnected && (
+          <div className="absolute inset-0 bg-gray-200 bg-opacity-50 flex items-center justify-center pointer-events-none">
+            <div className="bg-white px-4 py-2 rounded-lg shadow-lg border">
+              <span className="text-gray-600 text-sm">
+                🔄 Reconnecting to server...
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

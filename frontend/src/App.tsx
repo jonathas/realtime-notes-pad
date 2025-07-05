@@ -9,6 +9,7 @@ export default function App() {
   const [note, setNote] = useState<Note>();
   const [lastSaved, setLastSaved] = useState<Date>();
   const [isUserTyping, setIsUserTyping] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [serverUrl, setServerUrl] = useState(() => 
     localStorage.getItem('serverUrl') || 'http://localhost:8000'
   );
@@ -119,6 +120,7 @@ export default function App() {
           note={note}
           onSave={setLastSaved}
           onTypingChange={setIsUserTyping}
+          onConnectionChange={setIsConnected}
           serverUrl={serverUrl}
         />
       </div>
@@ -126,7 +128,7 @@ export default function App() {
       <StatusBar 
         note={note} 
         lastSaved={lastSaved}
-        isConnected={true}
+        isConnected={isConnected}
         isUserTyping={isUserTyping}
         userName="Jonathas"
       />

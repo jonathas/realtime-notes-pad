@@ -1,74 +1,99 @@
-import { useEffect, useState } from 'react'
-import { updateNote, type Note } from '../../services/storage'; 
-import './Editor.css'
-import { getCurrentTimestamp } from '../../utils/dateUtils';
+import { useEffect, useState, useRef } from 'react';
+import { type Note } from '../../services/storage';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface EditorProps {
   note?: Note;
-  onNoteChange?: (note: Note) => void;
   onSave?: (date: Date) => void;
-  onTypingChange?: (isTyping: boolean) => void;
-  serverUrl?: string;
+  onTypingChange: (isTyping: boolean) => void;
+  onConnectionChange?: (connected: boolean) => void;
+  serverUrl: string;
 }
 
-export default function Editor({
-  note,
-  onSave = () => {},
-  onTypingChange = () => {},
-  serverUrl
-}: Readonly<EditorProps> = {
-}) {
+export default function Editor({ note, onSave, onTypingChange, onConnectionChange, serverUrl }: Readonly<EditorProps>) {
   const [content, setContent] = useState('');
-  const [hasUserTyped, setHasUserTyped] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
+  const [otherUsersTyping, setOtherUsersTyping] = useState<string[]>([]);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const isUpdatingFromRemote = useRef(false);
+  const typingTimeoutRef = useRef<number | undefined>(undefined);
 
-  // Update content when note changes
+  // WebSocket connection
+  const {
+    sendContentChange,
+    sendTypingIndicator,
+  } = useWebSocket({
+    serverUrl,
+    noteId: note?.id,
+    userName: 'Jonathas', // You can make this dynamic
+    onContentChange: (newContent, userName) => {
+      if (userName !== 'Jonathas') { // Don't update from our own changes
+        isUpdatingFromRemote.current = true;
+        setContent(newContent);
+        setTimeout(() => {
+          isUpdatingFromRemote.current = false;
+        }, 100);
+      }
+    },
+    onTypingChange: (isTyping, userName) => {
+      if (userName !== 'Jonathas') {
+        setOtherUsersTyping(prev => {
+          if (isTyping) {
+            return prev.includes(userName) ? prev : [...prev, userName];
+          } else {
+            return prev.filter(u => u !== userName);
+          }
+        });
+      }
+    },
+    onConnectionChange: onConnectionChange,
+    onContentSaved: () => {
+      console.log('🎉 onContentSaved called - updating lastSaved');
+      onSave?.(new Date());
+    }
+  });
+
+  // Load note content when note changes
   useEffect(() => {
     if (note?.content !== undefined) {
       setContent(note.content);
-      setHasUserTyped(false); // Reset typing state for new note
     }
-  }, [note]);
+  }, [note?.content]);
 
+  // Handle content changes
+  const handleContentChange = (newContent: string) => {
+    if (isUpdatingFromRemote.current) return;
+
+    setContent(newContent);
+    
+    // Send typing indicator
+    sendTypingIndicator(true);
+    
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    
+    // Stop typing indicator after 1 second of no typing
+    typingTimeoutRef.current = window.setTimeout(() => {
+      sendTypingIndicator(false);
+      onTypingChange(false);
+    }, 1000);
+
+    // Send content changes to other users
+    sendContentChange(newContent);
+    
+    // Update local typing state
+    onTypingChange(true);
+  };
+
+  // Clean up typing timeout
   useEffect(() => {
-    if (!hasUserTyped || !serverUrl || !note) return;
-
-    const saveNoteAsync = async () => {
-      try {
-        await updateNote({ ...note, content });
-        onSave(getCurrentTimestamp());
-      } catch (error) {
-        console.error('Failed to save note:', error);
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
       }
     };
-
-    const timeout = setTimeout(() => {
-      saveNoteAsync();
-    }, 500);
-
-    return () => clearTimeout(timeout);
-  }, [content, note, hasUserTyped, onSave, serverUrl]);
-
-  useEffect(() => {
-    if (!isTyping) return;
-
-    const typingTimeout = setTimeout(() => {
-      setIsTyping(false);
-      onTypingChange(false);
-    }, 1000); // Stop showing "typing" after 1 second of inactivity
-
-    return () => clearTimeout(typingTimeout);
-  }, [isTyping, onTypingChange]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value);
-    setHasUserTyped(true);
-
-    if (!isTyping) {
-      setIsTyping(true);
-      onTypingChange(true);
-    }
-  };
+  }, []);
 
   // Show placeholder message if no server URL
   if (!serverUrl) {
@@ -88,14 +113,28 @@ export default function Editor({
     );
   }
 
-
   return (
-    <textarea
-      value={content}
-      onChange={handleChange}
-      className="w-screen h-full p-4 text-lg font-mono focus:outline-none resize-none"
-      placeholder="Start typing your collaborative note..."
-      autoFocus
-    />
+    <div className="h-full flex flex-col">
+      {/* Typing indicators - only show if others are typing */}
+      {otherUsersTyping.length > 0 && (
+        <div className="px-4 py-2 bg-blue-50 border-b text-sm">
+          <span className="text-blue-600 italic">
+            {otherUsersTyping.join(', ')} {otherUsersTyping.length === 1 ? 'is' : 'are'} typing...
+          </span>
+        </div>
+      )}
+
+      {/* Editor */}
+      <div className="flex-1 relative">
+        <textarea
+          ref={textareaRef}
+          value={content}
+          onChange={(e) => handleContentChange(e.target.value)}
+          className="w-full h-full p-4 resize-none border-none outline-none font-mono text-sm leading-relaxed"
+          placeholder="Start typing your note..."
+          spellCheck={false}
+        />
+      </div>
+    </div>
   );
 }

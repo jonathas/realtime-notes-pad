@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from ..websocket_manager import manager
+from ..services.note_service import note_service
 from fastapi import WebSocket
 import asyncio
 from typing import Dict
@@ -57,6 +58,11 @@ class WebSocketService:
         
         if note_id in self._pending_updates:
             update = self._pending_updates[note_id]
+
+            # Save to database via note_service
+            from ..models.note import NoteUpdate
+            note_update = NoteUpdate(content=update["content"])
+            note_service.update_note(note_id, note_update)
             
             await manager.broadcast_to_room(note_id, {
                 "type": "content_change",

@@ -1,7 +1,7 @@
 FROM python:3.11-alpine AS builder
 
 # Install build dependencies
-RUN apk add --no-cache gcc libffi-dev musl-dev postgresql-dev
+RUN apk add --no-cache gcc libffi-dev musl-dev
 
 WORKDIR /code
 COPY ./requirements.txt /code/requirements.txt
@@ -11,8 +11,6 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
 # Final stage
 FROM python:3.11-alpine
-
-RUN apk add --no-cache libpq
 
 WORKDIR /code
 

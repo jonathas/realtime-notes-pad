@@ -12,6 +12,7 @@ interface ToolbarProps {
   serverUrl?: string;
   onServerChange?: (url: string) => void;
   onNoteChange?: (note: Note) => void;
+  onNoteUpdate?: (updatedNote: Note) => void;
   forceShowServerModal?: boolean;
   forceShowNoteModal?: boolean;
   onServerModalClose?: () => void;
@@ -23,6 +24,7 @@ export default function Toolbar({
   serverUrl,
   onServerChange = () => {},
   onNoteChange = () => {},
+  onNoteUpdate,
   forceShowServerModal = false,
   forceShowNoteModal = false,
   onServerModalClose = () => {},
@@ -107,6 +109,7 @@ export default function Toolbar({
           onSelect={onNoteChange}
           onClose={handleNoteModalClose}
           allowClose={!!localStorage.getItem('selectedNoteId')} // Only allow close if note selected
+          onNoteUpdate={onNoteUpdate}
         />
       )}
     </>

@@ -44,6 +44,12 @@ export default function App() {
     }
   };
 
+  const handleNoteUpdate = (updatedNote: Note) => {
+    setNote(updatedNote);
+    // Also update last saved time
+    setLastSaved(convertUTCToLocal(updatedNote.updated_at));
+  };
+
   const handleServerChange = (newServerUrl: string) => {
     setServerUrl(newServerUrl);
     setShowServerModal(false);
@@ -101,6 +107,7 @@ export default function App() {
         serverUrl={serverUrl}
         onServerChange={handleServerChange}
         onNoteChange={handleNoteChange}
+        onNoteUpdate={handleNoteUpdate}
         forceShowServerModal={showServerModal}
         forceShowNoteModal={showNoteModal}
         onServerModalClose={handleServerModalClose}

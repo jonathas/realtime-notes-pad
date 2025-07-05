@@ -7,10 +7,18 @@ interface EditorProps {
   onSave?: (date: Date) => void;
   onTypingChange: (isTyping: boolean) => void;
   onConnectionChange?: (connected: boolean) => void;
+  onNoteUpdate?: (updatedNote: Note) => void;
   serverUrl: string;
 }
 
-export default function Editor({ note, onSave, onTypingChange, onConnectionChange, serverUrl }: Readonly<EditorProps>) {
+export default function Editor({ 
+  note, 
+  onSave, 
+  onTypingChange, 
+  onConnectionChange,
+  onNoteUpdate,
+  serverUrl 
+}: Readonly<EditorProps>) {
   const [content, setContent] = useState('');
   const [otherUsersTyping, setOtherUsersTyping] = useState<string[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -30,6 +38,16 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
       if (userName !== 'Jonathas') { // Don't update from our own changes
         isUpdatingFromRemote.current = true;
         setContent(newContent);
+
+        // Update the note object when content changes from other users
+        if (note && onNoteUpdate) {
+          onNoteUpdate({
+            ...note,
+            content: newContent,
+            updated_at: new Date().toISOString()
+          });
+        }
+
         setTimeout(() => {
           isUpdatingFromRemote.current = false;
         }, 100);
@@ -49,6 +67,15 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
     onConnectionChange: onConnectionChange,
     onContentSaved: () => {
       onSave?.(new Date());
+
+      // Update the note object when content is saved
+      if (note && onNoteUpdate) {
+        onNoteUpdate({
+          ...note,
+          content: content, // Use current content
+          updated_at: new Date().toISOString()
+        });
+      }
     }
   });
 
@@ -77,6 +104,14 @@ export default function Editor({ note, onSave, onTypingChange, onConnectionChang
     }
 
     setContent(newContent);
+
+    if (note && onNoteUpdate) {
+      onNoteUpdate({
+        ...note,
+        content: newContent,
+        updated_at: new Date().toISOString()
+      });
+    }
     
     // Send typing indicator
     sendTypingIndicator(true);

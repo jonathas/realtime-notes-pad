@@ -121,6 +121,7 @@ export default function App() {
           onSave={setLastSaved}
           onTypingChange={setIsUserTyping}
           onConnectionChange={setIsConnected}
+          onNoteUpdate={handleNoteUpdate}
           serverUrl={serverUrl}
         />
       </div>

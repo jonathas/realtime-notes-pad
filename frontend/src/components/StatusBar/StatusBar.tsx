@@ -11,7 +11,6 @@ interface StatusBarProps {
   };
   isConnected?: boolean;
   lastSaved?: Date;
-  wordCount?: number;
   isUserTyping?: boolean;
   userName?: string;
 }
@@ -20,7 +19,6 @@ export default function StatusBar({
   note, 
   isConnected = true, 
   lastSaved,
-  wordCount,
   isUserTyping = false,
   userName = '',
 }: Readonly<StatusBarProps>) {
@@ -36,10 +34,11 @@ export default function StatusBar({
   }, []);
 
   const getWordCount = () => {
-    if (!wordCount && note?.content) {
-      return note.content.trim().split(/\s+/).filter(word => word.length > 0).length;
-    }
-    return wordCount || 0;
+    if (!note?.content) return 0;
+    
+    return note.content.trim() === '' 
+      ? 0 
+      : note.content.trim().split(/\s+/).length;
   };
 
   return (

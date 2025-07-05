@@ -65,7 +65,7 @@ export default function ServerModal({
         )}
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor='url' className="block text-sm font-medium text-gray-700 mb-2">
             Server URL
           </label>
           <input
@@ -87,7 +87,7 @@ export default function ServerModal({
           {allowClose && (
             <button
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 cursor-pointer"
             >
               Cancel
             </button>
@@ -95,7 +95,7 @@ export default function ServerModal({
           <button
             onClick={handleSave}
             disabled={isValidating || !url.trim()}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
           >
             {isValidating ? 'Validating...' : 'Save & Continue'}
           </button>

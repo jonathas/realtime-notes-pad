@@ -1,4 +1,4 @@
-# 📝 Real-Time Notes Pad
+# 📝 Real-Time Notes Pad (WIP)
 
 A **self-hosted** real-time collaborative note-taking app built with **React**, **FastAPI**, and **WebSockets**—inspired by Google Docs, but designed for privacy-first local networks.
 

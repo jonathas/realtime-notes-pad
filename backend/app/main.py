@@ -8,25 +8,22 @@ import os
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    try:
-        print("🚀 Starting up Real-Time Notes Pad API...")
-
-        print("📊 Creating database tables...")
-        create_db_and_tables()
-        print("✅ Database tables created successfully")
-        
+    print("🚀 Starting up Real-Time Notes Pad API...")
+    
+    # Create tables
+    print("📊 Creating database tables...")
+    create_db_and_tables()
+    print("✅ Database tables created successfully")
+    
+    # Skip seeding during tests
+    if not os.getenv("PYTEST_CURRENT_TEST"):
         print("🌱 Seeding initial data...")
         seed_initial_data()
         print("✅ Seeding completed")
-
-        print("🎉 Application startup complete!")
-        
-    except Exception as e:
-        print(f"❌ Startup error: {e}")
-        import traceback
-        traceback.print_exc()
-        
+    
+    print("🎉 Application startup complete!")
     yield
+    print("🛑 Shutting down Real-Time Notes Pad API...")
 
 app = FastAPI(
     title="Real-Time Notes Pad API", 

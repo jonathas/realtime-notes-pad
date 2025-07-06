@@ -1,10 +1,21 @@
+import { authService } from './auth';
+
 const getBaseURL = () => {
-  return `${localStorage.getItem('serverUrl') || 'import.meta.env.VITE_API_URL'}/api/v1`;
+  return `${localStorage.getItem('serverUrl') || import.meta.env.VITE_API_URL}/api/v1`;
+};
+
+const getAuthHeaders = async () => {
+  const token = await authService.getIdToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { 'Authorization': `Bearer ${token}` })
+  };
 };
 
 export const apiClient = {
   async get<T>(endpoint: string): Promise<T> {
-    const response = await fetch(`${getBaseURL()}${endpoint}`);
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${getBaseURL()}${endpoint}`, { headers });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -12,11 +23,10 @@ export const apiClient = {
   },
 
   async post<T>(endpoint: string, data: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -26,11 +36,10 @@ export const apiClient = {
   },
 
   async put<T>(endpoint: string, data: unknown): Promise<T> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -40,8 +49,10 @@ export const apiClient = {
   },
 
   async delete<T>(endpoint: string): Promise<T> {
+    const headers = await getAuthHeaders();
     const response = await fetch(`${getBaseURL()}${endpoint}`, {
       method: 'DELETE',
+      headers,
     });
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
+import UserProfile from '../Auth/UserProfile';
+import LoginModal from '../Auth/LoginModal';
 import ServerModal from '../Modals/ServerModal';
 import NoteModal from '../Modals/NoteModal';
 import './Toolbar.css';
 import type { Note } from '../../services/storage';
+import { useAuth } from '../../contexts/context';
 
 interface ToolbarProps {
   currentNote?: {
@@ -30,8 +33,10 @@ export default function Toolbar({
   onServerModalClose = () => {},
   onNoteModalClose = () => {}
 }: Readonly<ToolbarProps>) {
+  const { currentUser } = useAuth();
   const [showServerModal, setShowServerModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(forceShowNoteModal);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Update local state when forced to show modal
   useEffect(() => {
@@ -57,7 +62,6 @@ export default function Toolbar({
     if (!currentNote) return 'Select a Note';
     return currentNote.title || 'Untitled';
   };
-
 
   return (
     <>
@@ -93,6 +97,19 @@ export default function Toolbar({
         </div>
       </div>
 
+      <div className="flex items-center space-x-4">
+        {currentUser ? (
+          <UserProfile />
+        ) : (
+          <button
+            onClick={() => setShowLoginModal(true)}
+            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
+          >
+            Sign In
+          </button>
+        )}
+      </div>
+
       {showServerModal && (
         <ServerModal
           currentUrl={serverUrl}
@@ -112,6 +129,11 @@ export default function Toolbar({
           onNoteUpdate={onNoteUpdate}
         />
       )}
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
     </>
   );
 }

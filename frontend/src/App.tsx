@@ -1,3 +1,4 @@
+import { AuthProvider } from './contexts/AuthContext';
 import { useEffect, useState } from 'react';
 import Editor from './components/Editor/Editor';
 import StatusBar from './components/StatusBar/StatusBar';
@@ -7,7 +8,7 @@ import { convertUTCToLocal } from './utils/dateUtils';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt/PWAUpdatePrompt';
 import ConnectionStatus from './components/ConnectionStatus/ConnectionStatus';
 
-export default function App() {
+function AppContent() {
   const [note, setNote] = useState<Note>();
   const [lastSaved, setLastSaved] = useState<Date>();
   const [isUserTyping, setIsUserTyping] = useState(false);
@@ -140,5 +141,13 @@ export default function App() {
       <PWAUpdatePrompt />
       <ConnectionStatus />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }

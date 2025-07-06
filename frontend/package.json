@@ -22,6 +22,7 @@
     "dayjs": "^1.11.13",
     "electron-is-dev": "^3.0.1",
     "electron-updater": "^6.6.2",
+    "firebase": "^11.10.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11"

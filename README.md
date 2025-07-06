@@ -51,12 +51,12 @@ sequenceDiagram
 - [x] Real-time collaborative editing via WebSocket
 - [ ] Multi-user support with live cursors
 - [ ] Firebase Authentication (works with self-hosted setup)
-- [ ] Auto-saving with intelligent debouncing
+- [x] Auto-saving with intelligent debouncing
 - [x] Multiple notes management
-- [ ] Cross-platform clients (Web, Desktop, Mobile)
-- [ ] Simple backup (single SQLite file)
+- [x] Cross-platform clients (Web, Desktop, Mobile)
+- [x] Simple backup (single SQLite file)
 - [x] Docker deployment
-- [ ] Electron desktop app
+- [x] Electron desktop app
 - [ ] React Native mobile app
 
 ---
@@ -74,7 +74,7 @@ sequenceDiagram
 
 - **React + TypeScript** - Web application
 - **Tailwind CSS** - Styling
-- **Electron** - Desktop wrapper (planned)
+- **Electron** - Desktop wrapper
 - **React Native** - Mobile apps (planned)
 
 ### Deployment
@@ -115,6 +115,66 @@ npm i
 npm run dev
 ```
 
+### Option 3: Desktop App (Electron)
+
+```bash
+# Clone and setup
+git clone https://github.com/jonathas/realtime-notes-pad.git
+cd realtime-notes-pad
+
+# Install frontend dependencies
+cd frontend
+npm install
+
+# Run in development mode (starts both web server and Electron)
+npm run electron-dev
+
+# Build for production
+npm run build-electron
+
+# Create distributable packages
+npm run dist
+```
+
+---
+
+## 🧪 Testing
+
+### Backend API Tests
+
+The backend includes comprehensive tests covering:
+
+- **Unit tests** - NoteService business logic
+- **API tests** - REST endpoints
+- **WebSocket tests** - Real-time functionality
+
+```bash
+# Navigate to backend directory
+cd backend
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test categories
+pytest -v -m "not slow"        # Skip performance tests
+pytest -v -m "slow"            # Only performance tests
+pytest -v -k "websocket"       # Only WebSocket tests
+
+# Run with coverage report
+pytest --cov=app --cov-report=html
+```
+
+**Test Categories:**
+
+- 🔧 **Unit Tests**: Core business logic (NoteService)
+- 🌐 **API Tests**: REST endpoint validation
+- 📡 **WebSocket Tests**: Real-time communication
+
+All tests use isolated in-memory databases for fast, reliable testing.
+
 ---
 
 ## 📁 Project Structure
@@ -132,6 +192,8 @@ realtime-notes-pad/
 │   │   │   ├── firebase.ts   # Authentication
 │   │   │   └── websocket.ts  # Real-time communication
 │   │   └── hooks/            # React hooks
+│   ├── electron/             # Desktop app wrapper
+│   │   └── main.js           # Electron main process
 │   ├── public/
 │   └── package.json
 ├── backend/                  # FastAPI server
@@ -140,6 +202,10 @@ realtime-notes-pad/
 │   │   ├── services/         # Business logic
 │   │   ├── models/           # Database models
 │   │   └── auth/             # Authentication
+│   ├── tests/                # Comprehensive test suite
+│   │   ├── test_note_service.py    # Unit tests
+│   │   ├── test_notes_api.py       # API tests
+│   │   ├── test_websockets.py      # WebSocket tests
 │   ├── data/                 # SQLite database
 │   └── requirements.txt
 ├── docker-compose.yml        # Development setup
@@ -155,6 +221,21 @@ realtime-notes-pad/
 - Access via any modern browser
 - Works on desktop and mobile
 - Real-time collaboration
+
+### 🖥️ Desktop App (Electron)
+
+A native desktop wrapper for the web app with enhanced features:
+
+**Features:**
+
+- 🖥️ **Native window**: Proper desktop integration
+- 📱 **Cross-platform**: Windows, macOS, and Linux
+- 🔄 **Auto-updater ready**: Built-in update mechanism
+
+**Built Apps Location:**
+
+- **Development**: Runs from `http://localhost:5173`
+- **Production**: Packaged in `dist-electron/` folder
 
 ### 🌐 PWA Features (Connection-Required)
 
@@ -183,11 +264,6 @@ const ws = new WebSocket(wsUrl);
 ws.onopen = () => enableEditor();
 ws.onclose = () => showReconnectingMessage();
 ```
-
-### Desktop App (Planned)
-
-- Electron wrapper for native experience
-- Keyboard shortcuts
 
 ### Mobile Apps (Planned)
 
@@ -292,8 +368,9 @@ docker-compose up -d
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Test on Raspberry Pi if possible
-5. Submit a pull request
+4. **Run tests**: `cd backend && pytest`
+5. Test on Raspberry Pi if possible
+6. Submit a pull request
 
 ---
 

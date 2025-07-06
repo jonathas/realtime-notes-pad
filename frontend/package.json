@@ -1,17 +1,27 @@
 {
   "name": "real-time-notes-pad",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "A real-time collaborative notes application",
+  "author": "Jonathas Ribeiro <contact@jonathas.com>",
   "type": "module",
+  "main": "electron/main.cjs",
+  "homepage": "./",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:5173 && electron .\"",
+    "build-electron": "npm run build && electron-builder",
+    "dist": "npm run build && electron-builder --publish=never"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "dayjs": "^1.11.13",
+    "electron-is-dev": "^3.0.1",
+    "electron-updater": "^6.6.2",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "tailwindcss": "^4.1.11"
@@ -21,12 +31,48 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.5.2",
+    "concurrently": "^9.2.0",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.29.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.2.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
-    "vite": "^7.0.0"
+    "vite": "^7.0.0",
+    "wait-on": "^8.0.3"
+  },
+  "build": {
+    "appId": "com.yourcompany.realtimenotespad",
+    "productName": "Real-time Notes Pad",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "public/notepad.png",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "public/notepad.png",
+        "to": "notepad.png"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": "dmg",
+      "icon": "public/notepad.png"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "public/notepad.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "public/notepad.png"
+    }
   }
 }

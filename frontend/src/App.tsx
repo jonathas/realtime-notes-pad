@@ -4,6 +4,8 @@ import StatusBar from './components/StatusBar/StatusBar';
 import { loadNote, type Note } from './services/storage';
 import Toolbar from './components/Toolbar/Toolbar';
 import { convertUTCToLocal } from './utils/dateUtils';
+import PWAUpdatePrompt from './components/PWAUpdatePrompt/PWAUpdatePrompt';
+import ConnectionStatus from './components/ConnectionStatus/ConnectionStatus';
 
 export default function App() {
   const [note, setNote] = useState<Note>();
@@ -133,6 +135,10 @@ export default function App() {
         isUserTyping={isUserTyping}
         userName="Jonathas"
       />
+
+      {/* PWA Components */}
+      <PWAUpdatePrompt />
+      <ConnectionStatus />
     </div>
   );
 }

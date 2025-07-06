@@ -4,6 +4,8 @@ A **self-hosted** real-time collaborative note-taking app built with **React**, 
 
 Perfect for families, small teams, and privacy-conscious users who want to keep their notes completely under their control.
 
+![Web version](/docs/images/web.png)
+
 ## 🔄 Data Flow
 
 ```mermaid
@@ -49,14 +51,13 @@ sequenceDiagram
 ## 🚀 Features
 
 - [x] Real-time collaborative editing via WebSocket
-- [ ] Multi-user support with live cursors
-- [ ] Firebase Authentication (works with self-hosted setup)
+- [x] Firebase Authentication (works with self-hosted setup)
 - [x] Auto-saving with intelligent debouncing
 - [x] Multiple notes management
 - [x] Cross-platform clients (Web, Desktop, Mobile)
 - [x] Simple backup (single SQLite file)
 - [x] Docker deployment
-- [x] Electron desktop app
+- [ ] Electron desktop app
 - [ ] React Native mobile app
 
 ---
@@ -68,7 +69,7 @@ sequenceDiagram
 - **FastAPI** (Python) - High-performance API
 - **SQLite** - Lightweight, serverless database
 - **WebSocket** - Real-time communication
-- **Firebase Auth** - User management (optional)
+- **Firebase Auth** - User management
 
 ### Frontend (Multi-Platform)
 
@@ -222,20 +223,33 @@ realtime-notes-pad/
 - Works on desktop and mobile
 - Real-time collaboration
 
-### 🖥️ Desktop App (Electron)
+### 🖥️ Desktop App (Electron) - ⚠️ Work in Progress
 
-A native desktop wrapper for the web app with enhanced features:
+A native desktop wrapper for the web app with enhanced features.
 
-**Features:**
+![Desktop version](/docs/images/electron.png)
 
-- 🖥️ **Native window**: Proper desktop integration
-- 📱 **Cross-platform**: Windows, macOS, and Linux
-- 🔄 **Auto-updater ready**: Built-in update mechanism
+#### ⚠️ Current Status: Not Ready for Production**
+
+The Electron app is currently **under development** and missing critical authentication features:
+
+- ❌ **Firebase Authentication**: Google sign-in doesn't work properly in Electron
+- ❌ **OAuth Flow**: Browser-based auth redirects don't return to the app
+- ❌ **Custom Protocol Handler**: Not yet implemented for auth callbacks
 
 **Built Apps Location:**
 
 - **Development**: Runs from `http://localhost:5173`
 - **Production**: Packaged in `dist-electron/` folder
+
+**Planned Features:**
+
+- 🖥️ **Native window**: Proper desktop integration
+- 📱 **Cross-platform**: Windows, macOS, and Linux
+- 🔐 **Embedded auth**: In-app Google authentication
+- 🔄 **Auto-updater ready**: Built-in update mechanism
+
+**For now, please use the web app** at `http://localhost:8000` which has full authentication support.
 
 ### 🌐 PWA Features (Connection-Required)
 
@@ -254,17 +268,6 @@ This app is designed as a **connected-only** PWA that requires real-time WebSock
 - Prevents sync conflicts and data loss
 - Simpler architecture and better security
 
-#### Connection-First Design
-
-```typescript
-// App only works when connected to your server
-const wsUrl = `ws://${serverUrl}/ws/${noteId}`;
-const ws = new WebSocket(wsUrl);
-
-ws.onopen = () => enableEditor();
-ws.onclose = () => showReconnectingMessage();
-```
-
 ### Mobile Apps (Planned)
 
 - React Native for iOS/Android
@@ -276,26 +279,17 @@ ws.onclose = () => showReconnectingMessage();
 ### Environment Variables
 
 ```bash
-# Backend (.env)
-DATABASE_URL=sqlite:///data/notes.db
-CORS_ORIGINS=*
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY=your-private-key
-
 # Frontend (.env)
-VITE_API_URL=http://localhost:8000
-VITE_FIREBASE_API_KEY=your-api-key
+# Firebase Configuration
+VITE_FIREBASE_API_KEY=your_api_key_here
 VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-```
+VITE_FIREBASE_PROJECT_ID=your-project-id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef123456
 
-### Server Discovery
-
-The app automatically discovers local servers on your network:
-
-```javascript
-// Connects to your server automatically
-const serverUrl = await discoverLocalServer();
-// Example: http://192.168.1.100:8000
+# API Configuration
+VITE_API_URL=http://localhost:8000
 ```
 
 ---

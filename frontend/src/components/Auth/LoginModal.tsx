@@ -5,9 +5,10 @@ import { useAuth } from '../../contexts/context';
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  allowClose?: boolean;
 }
 
-export default function LoginModal({ isOpen, onClose }: Readonly<LoginModalProps>) {
+export default function LoginModal({ isOpen, onClose, allowClose = true }: Readonly<LoginModalProps>) {
   const { signInWithGoogle, signInWithEmail, signUpWithEmail, resetPassword } = useAuth();
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
@@ -34,7 +35,7 @@ export default function LoginModal({ isOpen, onClose }: Readonly<LoginModalProps
       setLoading(true);
       setError('');
       await signInWithGoogle();
-      onClose();
+      handleClose();
     } catch (error) {
       setError((error as Error).message || 'Failed to sign in with Google');
     } finally {
@@ -59,7 +60,7 @@ export default function LoginModal({ isOpen, onClose }: Readonly<LoginModalProps
       } else {
         await signInWithEmail(formData.email, formData.password);
       }
-      onClose();
+      handleClose();
     } catch (error) {
       setError((error as Error).message || `Failed to ${isSignUp ? 'sign up' : 'sign in'}`);
     } finally {
@@ -88,12 +89,19 @@ export default function LoginModal({ isOpen, onClose }: Readonly<LoginModalProps
     }
   };
 
+  const handleClose = () => {
+    if (allowClose) {
+      onClose();
+    }
+  };
+
   if (showPasswordReset) {
     return (
       <Modal 
         title="Reset Password" 
         onClose={() => setShowPasswordReset(false)}
         isOpen={isOpen}
+        showCloseButton={allowClose}
       >
         <form onSubmit={handlePasswordReset} className="space-y-4">
           <div>
@@ -141,8 +149,15 @@ export default function LoginModal({ isOpen, onClose }: Readonly<LoginModalProps
       title={isSignUp ? 'Sign Up' : 'Sign In'} 
       onClose={onClose}
       isOpen={isOpen}
+      showCloseButton={allowClose}
     >
       <div className="space-y-4">
+        {!allowClose && (
+          <div className="bg-blue-50 border border-blue-200 rounded p-3 text-sm text-blue-800">
+            🔐 Authentication is required to access your notes
+          </div>
+        )}
+    
         {/* Google Sign In */}
         <button
           onClick={handleGoogleSignIn}

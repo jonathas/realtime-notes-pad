@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import UserProfile from '../Auth/UserProfile';
-import LoginModal from '../Auth/LoginModal';
 import ServerModal from '../Modals/ServerModal';
 import NoteModal from '../Modals/NoteModal';
 import './Toolbar.css';
@@ -36,7 +35,6 @@ export default function Toolbar({
   const { currentUser } = useAuth();
   const [showServerModal, setShowServerModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(forceShowNoteModal);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Update local state when forced to show modal
   useEffect(() => {
@@ -80,7 +78,7 @@ export default function Toolbar({
         <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowServerModal(true)}
-            className={`toolbar-button ${!serverUrl ? 'bg-orange-800 border-orange-600 text-orange-200' : ''}`}
+            className={`toolbar-button cursor-pointer ${!serverUrl ? 'bg-orange-800 border-orange-600 text-orange-200' : ''}`}
             title="Select Server"
           >
             🌐 Server
@@ -88,26 +86,16 @@ export default function Toolbar({
           
           <button
             onClick={() => setShowNoteModal(true)}
-            className="toolbar-button"
+            className="toolbar-button cursor-pointer"
             title="Select Note"
             disabled={!serverUrl}
           >
             📄 Notes
           </button>
-        </div>
-      </div>
 
-      <div className="flex items-center space-x-4">
-        {currentUser ? (
-          <UserProfile />
-        ) : (
-          <button
-            onClick={() => setShowLoginModal(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
-          >
-            Sign In
-          </button>
-        )}
+          {/* User Profile - only show if authenticated (which is guaranteed by now) */}
+          {currentUser && <UserProfile />}
+        </div>
       </div>
 
       {showServerModal && (
@@ -129,11 +117,6 @@ export default function Toolbar({
           onNoteUpdate={onNoteUpdate}
         />
       )}
-
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
     </>
   );
 }

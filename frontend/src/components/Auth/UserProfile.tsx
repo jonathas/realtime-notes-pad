@@ -20,20 +20,20 @@ export default function UserProfile() {
     <div className="relative">
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
       >
         {currentUser.photoURL ? (
           <img
             src={currentUser.photoURL}
             alt={currentUser.displayName || 'Profile'}
-            className="w-8 h-8 rounded-full"
+            className="w-7 h-7 rounded-full"
           />
         ) : (
           <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
             {currentUser.displayName?.[0] || currentUser.email?.[0] || '?'}
           </div>
         )}
-        <span className="text-sm font-medium text-gray-700 max-w-24 truncate">
+        <span className="text-sm font-medium text-white max-w-24 truncate">
           {currentUser.displayName || currentUser.email}
         </span>
         <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -61,7 +61,7 @@ export default function UserProfile() {
             <div className="p-2">
               <button
                 onClick={handleSignOut}
-                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition-colors cursor-pointer"
               >
                 Sign Out
               </button>

@@ -9,6 +9,7 @@ interface EditorProps {
   onConnectionChange?: (connected: boolean) => void;
   onNoteUpdate?: (updatedNote: Note) => void;
   serverUrl: string;
+  userName?: string;
 }
 
 export default function Editor({ 
@@ -17,7 +18,8 @@ export default function Editor({
   onTypingChange, 
   onConnectionChange,
   onNoteUpdate,
-  serverUrl 
+  serverUrl,
+  userName
 }: Readonly<EditorProps>) {
   const [content, setContent] = useState('');
   const [otherUsersTyping, setOtherUsersTyping] = useState<string[]>([]);
@@ -33,9 +35,9 @@ export default function Editor({
   } = useWebSocket({
     serverUrl,
     noteId: note?.id,
-    userName: 'Jonathas', // You can make this dynamic
-    onContentChange: (newContent, userName) => {
-      if (userName !== 'Jonathas') { // Don't update from our own changes
+    userName,
+    onContentChange: (newContent, senderUserName) => {
+      if (senderUserName !== userName) { // Compare with current user's name
         isUpdatingFromRemote.current = true;
         setContent(newContent);
 
@@ -53,13 +55,13 @@ export default function Editor({
         }, 100);
       }
     },
-    onTypingChange: (isTyping, userName) => {
-      if (userName !== 'Jonathas') {
+    onTypingChange: (isTyping, senderUserName) => {
+      if (senderUserName !== userName) {
         setOtherUsersTyping(prev => {
           if (isTyping) {
-            return prev.includes(userName) ? prev : [...prev, userName];
+            return prev.includes(senderUserName) ? prev : [...prev, senderUserName];
           } else {
-            return prev.filter(u => u !== userName);
+            return prev.filter(u => u !== senderUserName);
           }
         });
       }

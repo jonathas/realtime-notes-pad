@@ -1,4 +1,4 @@
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts';
 import { useEffect, useState } from 'react';
 import Editor from './components/Editor/Editor';
 import StatusBar from './components/StatusBar/StatusBar';
@@ -7,8 +7,10 @@ import Toolbar from './components/Toolbar/Toolbar';
 import { convertUTCToLocal } from './utils/dateUtils';
 import PWAUpdatePrompt from './components/PWAUpdatePrompt/PWAUpdatePrompt';
 import ConnectionStatus from './components/ConnectionStatus/ConnectionStatus';
+import LoginModal from './components/Auth/LoginModal';
 
 function AppContent() {
+  const { currentUser } = useAuth();
   const [note, setNote] = useState<Note>();
   const [lastSaved, setLastSaved] = useState<Date>();
   const [isUserTyping, setIsUserTyping] = useState(false);
@@ -19,8 +21,10 @@ function AppContent() {
   const [showServerModal, setShowServerModal] = useState(false);
   const [showNoteModal, setShowNoteModal] = useState(false);
 
-  // Check setup flow on app start
+  // Check setup flow on app start (only if user is authenticated)
   useEffect(() => {
+    if (!currentUser) return; // Don't proceed without authentication
+
     const storedServerUrl = localStorage.getItem('serverUrl');
     const selectedNoteId = localStorage.getItem('selectedNoteId');
 
@@ -34,7 +38,7 @@ function AppContent() {
       // Both server and note are configured - load the selected note
       loadSelectedNote(selectedNoteId);
     }
-  }, []);
+  }, [currentUser]);
 
   const loadSelectedNote = async (noteId: string) => {
     try {
@@ -50,7 +54,6 @@ function AppContent() {
 
   const handleNoteUpdate = (updatedNote: Note) => {
     setNote(updatedNote);
-    // Also update last saved time
     setLastSaved(convertUTCToLocal(updatedNote.updated_at));
   };
 
@@ -104,6 +107,35 @@ function AppContent() {
     }
   };
 
+  const getUserDisplayName = () => {
+    if (!currentUser) return 'Unknown User';
+    return currentUser.displayName || currentUser.email || 'User';
+  };
+
+  // Show login modal if user is not authenticated - cannot be closed
+  if (!currentUser) {
+    return (
+      <>
+        <div className="h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              📝 Real-Time Notes Pad
+            </h1>
+            <p className="text-gray-600 mb-8">
+              Please sign in to access your notes
+            </p>
+          </div>
+        </div>
+        
+        {/* Login modal that cannot be closed */}
+        <LoginModal
+          isOpen={true}
+          onClose={() => {}} // Empty function - cannot be closed
+        />
+      </>
+    );
+  }
+
   return (
     <div className="h-screen flex flex-col">
       <Toolbar
@@ -126,6 +158,7 @@ function AppContent() {
           onConnectionChange={setIsConnected}
           onNoteUpdate={handleNoteUpdate}
           serverUrl={serverUrl}
+          userName={getUserDisplayName()}
         />
       </div>
       
@@ -134,7 +167,7 @@ function AppContent() {
         lastSaved={lastSaved}
         isConnected={isConnected}
         isUserTyping={isUserTyping}
-        userName="Jonathas"
+        userName={getUserDisplayName()}
       />
 
       {/* PWA Components */}

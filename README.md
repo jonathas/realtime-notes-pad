@@ -229,7 +229,7 @@ A native desktop wrapper for the web app with enhanced features.
 
 ![Desktop version](/docs/images/electron.png)
 
-#### ⚠️ Current Status: Not Ready for Production**
+#### ⚠️ Current Status: Not Ready for Production
 
 The Electron app is currently **under development** and missing critical authentication features:
 

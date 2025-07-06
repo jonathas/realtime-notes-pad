@@ -9,7 +9,7 @@ interface EditorProps {
   onConnectionChange?: (connected: boolean) => void;
   onNoteUpdate?: (updatedNote: Note) => void;
   serverUrl: string;
-  userName?: string;
+  userName: string;
 }
 
 export default function Editor({ 
@@ -26,6 +26,8 @@ export default function Editor({
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const isUpdatingFromRemote = useRef(false);
   const typingTimeoutRef = useRef<number | undefined>(undefined);
+  const lastSentContentRef = useRef<string>('');
+  const lastLocalEditRef = useRef<number>(0);
 
   // WebSocket connection
   const {
@@ -37,7 +39,18 @@ export default function Editor({
     noteId: note?.id,
     userName,
     onContentChange: (newContent, senderUserName) => {
-      if (senderUserName !== userName) { // Compare with current user's name
+      console.log('📨 Content change received:', {
+        content: newContent.substring(0, 50),
+        sender: senderUserName,
+        currentUser: userName,
+        isFromSelf: senderUserName === userName,
+        currentContent: content.substring(0, 50),
+        lastSent: lastSentContentRef.current.substring(0, 50)
+      });
+      
+      // If this is from another user, apply the change
+      if (senderUserName !== userName) {
+        console.log('✅ Applying remote content change from', senderUserName);
         isUpdatingFromRemote.current = true;
         setContent(newContent);
 
@@ -50,12 +63,52 @@ export default function Editor({
           });
         }
 
+        // Clear the flag after a short delay
         setTimeout(() => {
           isUpdatingFromRemote.current = false;
         }, 100);
+      } else {
+        // This is our own message echoed back from the server
+        console.log('🔄 Received own message back from server');
+        
+        // Check if we recently sent this exact content
+        const timeSinceLastEdit = Date.now() - lastLocalEditRef.current;
+        const isRecentEdit = timeSinceLastEdit < 5000; // Within 5 seconds
+        const isExactMatch = newContent === lastSentContentRef.current;
+        
+        console.log('🔍 Echo analysis:', {
+          isRecentEdit,
+          isExactMatch,
+          timeSince: timeSinceLastEdit,
+          serverContent: newContent.length,
+          localContent: content.length
+        });
+        
+        // Only apply if:
+        // 1. It's not a recent edit we made, OR
+        // 2. There's a significant difference from what we have locally
+        if (!isRecentEdit || content !== newContent) {
+          if (content !== newContent) {
+            console.log('⚠️  Content drift detected, syncing with server');
+            isUpdatingFromRemote.current = true;
+            setContent(newContent);
+            
+            setTimeout(() => {
+              isUpdatingFromRemote.current = false;
+            }, 100);
+          }
+        } else {
+          console.log('🚫 Ignoring own echo - content is current');
+        }
+        
+        // Always update our reference for future comparisons
+        lastSentContentRef.current = newContent;
       }
     },
     onTypingChange: (isTyping, senderUserName) => {
+      console.log('⌨️  Typing change:', { isTyping, sender: senderUserName, currentUser: userName });
+      
+      // Only show typing indicators from other users
       if (senderUserName !== userName) {
         setOtherUsersTyping(prev => {
           if (isTyping) {
@@ -68,13 +121,14 @@ export default function Editor({
     },
     onConnectionChange: onConnectionChange,
     onContentSaved: () => {
+      console.log('💾 Content saved confirmation received');
       onSave?.(new Date());
 
       // Update the note object when content is saved
       if (note && onNoteUpdate) {
         onNoteUpdate({
           ...note,
-          content: content, // Use current content
+          content: content,
           updated_at: new Date().toISOString()
         });
       }
@@ -91,13 +145,20 @@ export default function Editor({
   // Load note content when note changes
   useEffect(() => {
     if (note?.content !== undefined) {
+      console.log('📝 Loading note content:', note.content.substring(0, 50));
       setContent(note.content);
+      lastSentContentRef.current = note.content;
+      lastLocalEditRef.current = 0; // Reset edit timestamp
     }
   }, [note?.content]);
 
-  // Handle content changes
+  // Handle content changes from user input
   const handleContentChange = (newContent: string) => {
-    if (isUpdatingFromRemote.current) return;
+    // Don't process changes if we're updating from remote
+    if (isUpdatingFromRemote.current) {
+      console.log('🚫 Ignoring change - currently updating from remote');
+      return;
+    }
 
     // Prevent editing if not connected
     if (!isConnected) {
@@ -105,8 +166,19 @@ export default function Editor({
       return;
     }
 
+    console.log('✏️  Local content change:', {
+      newLength: newContent.length,
+      oldLength: content.length,
+      preview: newContent.substring(0, 50)
+    });
+
+    // Record the timestamp of this local edit
+    lastLocalEditRef.current = Date.now();
+
+    // Update local state immediately
     setContent(newContent);
 
+    // Update note object
     if (note && onNoteUpdate) {
       onNoteUpdate({
         ...note,
@@ -130,7 +202,9 @@ export default function Editor({
     }, 1000);
 
     // Send content changes to other users
+    console.log('📤 Sending content change to other users');
     sendContentChange(newContent);
+    lastSentContentRef.current = newContent;
     
     // Update local typing state
     onTypingChange(true);
@@ -144,6 +218,16 @@ export default function Editor({
       }
     };
   }, []);
+
+  // Debug logging for content changes
+  useEffect(() => {
+    console.log('📄 Content state updated:', {
+      length: content.length,
+      preview: content.substring(0, 50),
+      isRemoteUpdate: isUpdatingFromRemote.current,
+      lastEdit: lastLocalEditRef.current ? `${Date.now() - lastLocalEditRef.current}ms ago` : 'never'
+    });
+  }, [content]);
 
   // Show placeholder message if no server URL
   if (!serverUrl) {

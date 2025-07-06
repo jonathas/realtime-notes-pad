@@ -28,17 +28,23 @@ class ConnectionManager:
         """Broadcast message to all users in a specific note room"""
         if note_id not in self.active_connections:
             return
-            
+        
         message_str = json.dumps(message)
         connections_to_remove = []
         
+        print(f"🔊 Broadcasting to note {note_id}, excluding sender: {exclude_websocket is not None}")
+        
         for websocket in self.active_connections[note_id]:
+            # Skip the sender's websocket
             if exclude_websocket and websocket == exclude_websocket:
+                print(f"⏭️  Skipping sender websocket")
                 continue
-                
+            
             try:
                 await websocket.send_text(message_str)
+                print(f"✅ Sent message to a recipient")
             except Exception as e:
+                print(f"❌ Failed to send to websocket: {e}")
                 connections_to_remove.append(websocket)
         
         # Remove broken connections
